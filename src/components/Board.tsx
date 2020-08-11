@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React from "react";
 import Cell from "./Cell";
 
 interface Props {
   rows: number;
   columns: number;
   cells: boolean[][];
+  onCellClick?: (position: Position) => void;
+  onCellHover?: (position: Position) => void;
 }
 
-const Board: React.FC<Props> = ({ rows, columns, cells }) => {
+interface Position {
+  x: number;
+  y: number;
+}
+
+const Board: React.FC<Props> = ({
+  rows,
+  columns,
+  cells,
+  onCellClick = () => {},
+  onCellHover = () => {},
+}) => {
   if (rows !== columns)
     throw new Error("Rows have to equal to the number of columns");
 
@@ -22,11 +35,15 @@ const Board: React.FC<Props> = ({ rows, columns, cells }) => {
     if (!validDim)
       throw new Error("Cell dimensions have to match the rows and columns");
 
-    const cellElements = cells.map((row) => {
-      const cellRow = row.map((c) => {
+    const cellElements = cells.map((row, y) => {
+      const cellRow = row.map((c, x) => {
         return (
-          <div className="mx-1 h-6" key={randomKey()}>
-            <Cell alive={c} />
+          <div className="mx-1 h-6" key={`${x}${y}`}>
+            <Cell
+              alive={c}
+              onClick={() => onCellClick({ x, y })}
+              onHover={() => onCellHover({ x, y })}
+            />
           </div>
         );
       });
@@ -34,7 +51,7 @@ const Board: React.FC<Props> = ({ rows, columns, cells }) => {
       return (
         <div
           className="flex flex-row justify-center items-center my-2"
-          key={randomKey()}
+          key={`row${y}`}
         >
           {cellRow}
         </div>
@@ -44,9 +61,5 @@ const Board: React.FC<Props> = ({ rows, columns, cells }) => {
     return cellElements;
   }
 };
-
-function randomKey(): string {
-  return (Math.random() * 10000).toString(10);
-}
 
 export default Board;

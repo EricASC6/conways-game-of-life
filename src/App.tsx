@@ -1,43 +1,18 @@
-import React, { useState } from "react";
-import Board from "./components/Board";
-
-const cells = [
-  [false, true, true],
-  [false, true, false],
-  [false, true, false],
-];
+import React from "react";
+import GameBoard from "./components/GameBoard";
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen h-full p-4">
-      <Board rows={cells[0].length} columns={cells.length} cells={cells} />
+    <div className="flex flex-col align-start min-h-screen h-full p-4">
+      <h2 className="text-4xl font-semibold text-gray-700">
+        Conway's Game of <span className="text-teal-400 underline">Life</span>
+      </h2>
+
+      <div className="my-auto">
+        <GameBoard />
+      </div>
     </div>
   );
 };
-
-// const App = () => {
-//   const [mouseActive, setMouseActive] = useState<boolean>(false);
-//   const [alive, setAlive] = useState<boolean>(false);
-
-//   console.log(mouseActive);
-
-//   return (
-//     <div
-//       className="min-h-screen h-full p-4"
-//       onMouseDown={() => setMouseActive(true)}
-//       onMouseUp={() => setMouseActive(false)}
-//     >
-//       <Cell
-//         alive={alive}
-//         onClick={() => {
-//           setAlive(!alive);
-//         }}
-//         onHover={() => {
-//           if (mouseActive) setAlive(!alive);
-//         }}
-//       />
-//     </div>
-//   );
-// };
 
 export default App;
