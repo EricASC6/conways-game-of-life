@@ -1,18 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Board from "./Board";
 import Button from "./Button";
-import { boardService } from "../services/board";
+import { gameService } from "../services/game";
 
 interface Props {}
 
-const DIMENSIONS = 8;
-const boardCells = boardService.generateCells(DIMENSIONS);
+const DIMENSIONS = 15;
+
+const boardCells = gameService.generateCells(DIMENSIONS);
 
 const GameBoard: React.FC<Props> = () => {
+  const [isRunning, setIsRunning] = useState<boolean>(false);
   const [cells, setCells] = useState<boolean[][]>(boardCells);
   const [mouseDown, setMouseDown] = useState<boolean>(false);
 
-  console.log("rerender");
+  useEffect(() => {
+    let tickInterval;
+
+    if (isRunning) {
+      tickInterval = null;
+
+      tickInterval = setInterval(() => {
+        setCells((prevCells) => gameService.generateNextTick(prevCells));
+      }, 500);
+    } else clearInterval(tickInterval);
+  }, [isRunning]);
 
   return (
     <div>
@@ -25,16 +37,22 @@ const GameBoard: React.FC<Props> = () => {
           rows={DIMENSIONS}
           columns={DIMENSIONS}
           onCellClick={({ x, y }) => {
-            setCells(boardService.toggleCell(cells, { x, y }));
+            setCells(gameService.toggleCell(cells, { x, y }));
           }}
           onCellHover={({ x, y }) => {
-            if (mouseDown) setCells(boardService.toggleCell(cells, { x, y }));
+            if (mouseDown) setCells(gameService.toggleCell(cells, { x, y }));
           }}
         />
       </div>
 
       <div className="flex justify-center spacing mt-6">
-        <Button>Play</Button>
+        <Button
+          onClick={() => {
+            setIsRunning(!isRunning);
+          }}
+        >
+          {isRunning ? "Pause" : "Play"}
+        </Button>
         <Button
           borderWidth="2"
           borderColor="gray-200"
