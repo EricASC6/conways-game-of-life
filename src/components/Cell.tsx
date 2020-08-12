@@ -13,7 +13,7 @@ const Cell: React.FC<Props> = ({
 }) => {
   const bg = alive ? "bg-teal-400" : "bg-gray-100";
 
-  const cellClassName = `w-6 h-6 ${bg} 
+  const cellClassName = `w-4 h-4 ${bg} 
   rounded cursor-pointer ease-in transition-colors duration-150 mr-0 inline-block`;
 
   return (

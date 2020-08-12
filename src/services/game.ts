@@ -51,7 +51,8 @@ const generateNextTick = (board: boolean[][]): boolean[][] => {
       let aliveNeighbors: number = getNumAliveNeighbors(board, { x: j, y: i });
 
       if (aliveNeighbors < 2 && currentCellState) cellState = false;
-      else if (aliveNeighbors === 3 && currentCellState) cellState = true;
+      else if (2 <= aliveNeighbors && aliveNeighbors <= 3 && currentCellState)
+        cellState = true;
       else if (aliveNeighbors > 3 && currentCellState) cellState = false;
       else if (aliveNeighbors === 3 && !currentCellState) cellState = true;
       else cellState = false;

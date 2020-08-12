@@ -38,7 +38,7 @@ const Board: React.FC<Props> = ({
     const cellElements = cells.map((row, y) => {
       const cellRow = row.map((c, x) => {
         return (
-          <div className="mx-1 h-6" key={`${x}${y}`}>
+          <div className="mx-1 h-4" key={`${x}${y}`}>
             <Cell
               alive={c}
               onClick={() => onCellClick({ x, y })}
