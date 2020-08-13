@@ -1,35 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Board from "./Board";
 import Button from "./Button";
-import { gameService } from "../services/game";
+import { useConwaysGameOfLife } from "../hooks/game";
 
 interface Props {}
 
-const DIMENSIONS = 25;
-
-const boardCells = gameService.generateCells(DIMENSIONS);
-
-let tickInterval: number;
+const DIMENSIONS = 15;
 
 const GameBoard: React.FC<Props> = () => {
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [cells, setCells] = useState<boolean[][]>(boardCells);
+  const {
+    running,
+    cells,
+    generations,
+    run,
+    stop,
+    toggleCell,
+    reset,
+  } = useConwaysGameOfLife({
+    boardSize: DIMENSIONS,
+  });
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (isRunning) {
-      clearInterval(tickInterval);
-
-      tickInterval = window.setInterval(() => {
-        setCells((prevCells) => gameService.generateNextTick(prevCells));
-      }, 500);
-    } else clearInterval(tickInterval);
-
-    return () => clearInterval(tickInterval);
-  }, [isRunning]);
 
   return (
     <div>
+      <h2>generations: {generations}</h2>
+
       <div
         onMouseDown={() => setMouseDown(true)}
         onMouseUp={() => setMouseDown(false)}
@@ -38,11 +33,9 @@ const GameBoard: React.FC<Props> = () => {
           cells={cells}
           rows={DIMENSIONS}
           columns={DIMENSIONS}
-          onCellClick={({ x, y }) => {
-            setCells(gameService.toggleCell(cells, { x, y }));
-          }}
-          onCellHover={({ x, y }) => {
-            if (mouseDown) setCells(gameService.toggleCell(cells, { x, y }));
+          onCellClick={(position) => toggleCell(position)}
+          onCellHover={(position) => {
+            if (mouseDown) toggleCell(position);
           }}
         />
       </div>
@@ -50,17 +43,18 @@ const GameBoard: React.FC<Props> = () => {
       <div className="flex justify-center spacing mt-6">
         <Button
           onClick={() => {
-            if (isRunning) setIsRunning(false);
-            else setIsRunning(!isRunning);
+            if (running) stop();
+            else run();
           }}
         >
-          {isRunning ? "Pause" : "Play"}
+          {running ? "Pause" : "Play"}
         </Button>
         <Button
           borderWidth="2"
           borderColor="gray-200"
           color="red-600"
           bg="white"
+          onClick={reset}
         >
           Reset
         </Button>

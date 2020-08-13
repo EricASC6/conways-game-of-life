@@ -126,8 +126,20 @@ function getNeighborPositions(
   return neighborPositions;
 }
 
+function isAllDead(board: boolean[][]): boolean {
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[0].length; j++) {
+      const alive = board[i][j] === true;
+      if (alive) return false;
+    }
+  }
+
+  return true;
+}
+
 export const gameService = {
   generateCells,
   toggleCell,
   generateNextTick,
+  isAllDead,
 };
