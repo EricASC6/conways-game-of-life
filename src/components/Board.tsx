@@ -2,8 +2,6 @@ import React from "react";
 import Cell from "./Cell";
 
 interface Props {
-  rows: number;
-  columns: number;
   cells: boolean[][];
   onCellClick?: (position: Position) => void;
   onCellHover?: (position: Position) => void;
@@ -15,30 +13,27 @@ interface Position {
 }
 
 const Board: React.FC<Props> = ({
-  rows,
-  columns,
   cells,
   onCellClick = () => {},
   onCellHover = () => {},
 }) => {
-  if (rows !== columns)
+  const rows = cells.length;
+  const cols = cells[0].length;
+
+  if (rows !== cols)
     throw new Error("Rows have to equal to the number of columns");
 
-  return <div>{renderCells(cells)}</div>;
+  return (
+    <div className="flex justify-center align-center flex-col max-w-2xl">
+      {renderCells(cells)}
+    </div>
+  );
 
   function renderCells(cells: boolean[][]): JSX.Element[] {
-    const cellRows = cells[0].length;
-    const cellCols = cells.length;
-
-    const validDim: boolean = rows === cellRows && columns === cellCols;
-
-    if (!validDim)
-      throw new Error("Cell dimensions have to match the rows and columns");
-
     const cellElements = cells.map((row, y) => {
       const cellRow = row.map((c, x) => {
         return (
-          <div className="mx-1 h-4" key={`${x}${y}`}>
+          <div className="mx-1" key={`${x}${y}`}>
             <Cell
               alive={c}
               onClick={() => onCellClick({ x, y })}
@@ -50,8 +45,9 @@ const Board: React.FC<Props> = ({
 
       return (
         <div
-          className="flex flex-row justify-center items-center my-2"
+          className="flex flex-row justify-center items-center my-1"
           key={`row${y}`}
+          style={{ minWidth: "auto" }}
         >
           {cellRow}
         </div>

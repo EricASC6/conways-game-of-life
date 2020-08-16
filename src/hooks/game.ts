@@ -3,6 +3,7 @@ import { gameService } from "../services/game";
 
 interface GameOfLifeConfigs {
   boardSize?: number;
+  speed?: number;
 }
 
 interface Position {
@@ -10,13 +11,24 @@ interface Position {
   y: number;
 }
 
-let tickInterval: number;
-export const useConwaysGameOfLife = ({
+const useGameConfig = ({
   boardSize = 10,
-}: GameOfLifeConfigs = {}) => {
-  const initCells = gameService.generateCells(boardSize);
+  speed: gameSpeed = 1,
+}: GameOfLifeConfigs) => {
+  const [size, setSize] = useState<number>(boardSize);
+  const [speed, setSpeed] = useState<number>(gameSpeed);
 
-  const [size] = useState<number>(boardSize);
+  return { size, setSize, speed, setSpeed };
+};
+
+let tickInterval: number;
+const BASE_SPEED = 500;
+
+export const useConwaysGameOfLife = (configs: GameOfLifeConfigs = {}) => {
+  const configState = useGameConfig(configs);
+
+  const initCells = gameService.generateCells(configState.size);
+
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [cells, setCells] = useState<boolean[][]>(initCells);
   const [generations, setGenerations] = useState<number>(0);
@@ -26,20 +38,22 @@ export const useConwaysGameOfLife = ({
       window.clearInterval(tickInterval);
 
       tickInterval = window.setInterval(() => {
-        setCells((prevCells) => gameService.generateNextTick(prevCells));
+        setCells((prevCells) => {
+          const allDead: boolean = gameService.isAllDead(prevCells);
+          if (allDead) stop();
+
+          return gameService.generateNextTick(prevCells);
+        });
         setGenerations((prevGeneration) => prevGeneration + 1);
-      }, 500);
+      }, BASE_SPEED * configState.speed);
     } else window.clearInterval(tickInterval);
 
     return () => window.clearInterval(tickInterval);
-  }, [isRunning]);
+  }, [isRunning, configState.speed]);
 
   useEffect(() => {
-    if (isRunning) {
-      const allDead: boolean = gameService.isAllDead(cells);
-      if (allDead) stop();
-    }
-  }, [isRunning, cells]);
+    setCells(gameService.generateCells(configState.size));
+  }, [configState.size]);
 
   const run = () => setIsRunning(true);
 
@@ -52,7 +66,8 @@ export const useConwaysGameOfLife = ({
 
   const reset = () => {
     stop();
-    setCells(gameService.generateCells(size));
+    setGenerations(0);
+    setCells(gameService.generateCells(configState.size));
   };
 
   return {
@@ -63,5 +78,6 @@ export const useConwaysGameOfLife = ({
     stop,
     toggleCell,
     reset,
+    ...configState,
   };
 };
